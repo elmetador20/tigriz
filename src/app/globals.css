@@ -1,26 +1,332 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------
+   Arabian TIGRIZ — design tokens
+   ------------------------------------------------------------------ */
+@theme {
+  /* Surfaces */
+  --color-ink-950: #040d1c;
+  --color-ink-900: #061327; /* primary background */
+  --color-ink-800: #0b1b35; /* secondary background */
+  --color-ink-700: #102342; /* card background */
+  --color-ink-600: #173058;
+
+  /* Accents */
+  --color-lime: #b7f000;
+  --color-lime-soft: #d4ff4d;
+  --color-cyan: #29b8d4;
+  /* Functional only: form validation / error states */
+  --color-danger: #ff8f80;
+
+  /* Text */
+  --color-fg: #f5f7fa;
+  --color-muted: #a7b4c8;
+  --color-subtle: #7d8ca4;
+
+  /* Lines */
+  --color-line: rgb(167 180 200 / 0.12);
+  --color-line-strong: rgb(167 180 200 / 0.24);
+
+  /* Type */
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* Radius */
+  --radius-card: 1.25rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --gutter: clamp(1.25rem, 4vw, 3rem);
+    --section-y: clamp(5rem, 12vw, 10rem);
+  }
+
+  html {
+    background: var(--color-ink-900);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-ink-900);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-lime);
+    color: var(--color-ink-900);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------
+   Utilities
+   ------------------------------------------------------------------ */
+@utility container-x {
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+@utility text-balance-pretty {
+  text-wrap: balance;
+}
+
+/* Subtle grain/grid used on dark surfaces */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(167 180 200 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(167 180 200 / 0.05) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+/* ------------------------------------------------------------------
+   Motion gating
+   `.js-motion` is set by an inline script before paint when the visitor
+   allows motion. Elements marked [data-reveal] start hidden only then,
+   so no-JS and reduced-motion visitors always see content.
+   ------------------------------------------------------------------ */
+.js-motion [data-reveal] {
+  visibility: hidden;
+}
+
+@keyframes scrollcue {
+  0% { transform: translateY(-100%); }
+  60%, 100% { transform: translateY(200%); }
+}
+
+/* Light sweeping along a short rule (section eyebrows) */
+@keyframes rule-sweep {
+  0% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(200%); }
+}
+
+/* Re-draw a pathLength=1 stroke */
+@keyframes redraw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Blinking caret */
+@keyframes caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ------------------------------------------------------------------
+   About — Consultancy × Technologies Venn
+   State lives in [data-venn-root][data-active="a" | "b" | "ab"].
+   ------------------------------------------------------------------ */
+.vn-group {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: scale 0.8s var(--ease-out-expo), opacity 0.6s ease;
+}
+.vn-stroke { transition: stroke-opacity 0.6s ease, stroke-width 0.6s ease; stroke-opacity: 0.7; }
+.vn-glow { transition: opacity 0.6s ease; opacity: 0.14; }
+.vn-fill { transition: opacity 0.6s ease; opacity: 0.75; }
+.vn-lens { transition: opacity 0.6s ease; opacity: 0.55; }
+.vn-core { transition: opacity 0.8s ease; opacity: 0.6; }
+.vn-title,
+.vn-tag,
+.vn-verb { transition: fill 0.5s ease, opacity 0.5s ease; }
+
+[data-active="a"] .vn-group-a { scale: 1.035; }
+[data-active="b"] .vn-group-b { scale: 1.035; }
+[data-active="ab"] .vn-group-a,
+[data-active="ab"] .vn-group-b { scale: 1.012; }
+
+[data-active="a"] .vn-group-b,
+[data-active="b"] .vn-group-a { opacity: 0.4; }
+
+[data-active="a"] .vn-stroke-a,
+[data-active="b"] .vn-stroke-b,
+[data-active="ab"] .vn-stroke { stroke-opacity: 1; stroke-width: 2; }
+
+[data-active="a"] .vn-glow-a,
+[data-active="b"] .vn-glow-b,
+[data-active="ab"] .vn-glow { opacity: 1; }
+
+[data-active="a"] .vn-fill-a,
+[data-active="b"] .vn-fill-b,
+[data-active="ab"] .vn-fill { opacity: 1; }
+
+[data-active="ab"] .vn-lens,
+[data-active="ab"] .vn-core { opacity: 1; }
+[data-active="a"] .vn-lens,
+[data-active="b"] .vn-lens { opacity: 0.3; }
+
+[data-active="a"] .vn-title-a { fill: var(--color-lime); }
+[data-active="b"] .vn-title-b { fill: var(--color-cyan); }
+[data-active="ab"] .vn-title-ab { fill: var(--color-lime); }
+[data-active="a"] .vn-verb-a,
+[data-active="b"] .vn-verb-b { fill: var(--color-fg); }
+[data-active="a"] .vn-label-ab,
+[data-active="b"] .vn-label-ab,
+[data-active="a"] .vn-label-b,
+[data-active="b"] .vn-label-a { opacity: 0.4; }
+
+/* ------------------------------------------------------------------
+   Consultancy mockups
+   ------------------------------------------------------------------ */
+.mock :is(rect, path, circle, polyline, polygon, line, ellipse) {
+  vector-effect: non-scaling-stroke;
+}
+@keyframes slide-swap {
+  0%, 36% { transform: translateX(0); }
+  46%, 82% { transform: translateX(-168px); }
+  92%, 100% { transform: translateX(-336px); }
+}
+@keyframes slide-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes tile-glow {
+  0%, 70%, 100% { opacity: 1; }
+  82% { opacity: 0.55; }
+}
+
+/* Step timelines (motion/steps.ts) */
+.tl-step .tl-dot { transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.6s ease; }
+.tl-step .tl-label { transition: opacity 0.6s ease, translate 0.6s var(--ease-out-expo); }
+.tl-step[data-on="true"] .tl-dot { background: var(--color-lime); color: var(--color-ink-900); border-color: var(--color-lime); }
+.tl-step[data-current="true"] .tl-dot { box-shadow: 0 0 0 6px rgb(183 240 0 / 0.14), 0 0 28px 4px rgb(183 240 0 / 0.45); }
+[data-tl-armed] .tl-step:not([data-on="true"]) .tl-label { opacity: 0.35; }
+
+/* ------------------------------------------------------------------
+   Technologies
+   ------------------------------------------------------------------ */
+@keyframes ai-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+@keyframes packet-run {
+  0% { left: 0%; opacity: 0; }
+  8%, 92% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ------------------------------------------------------------------
+   Approach — workflow stages
+   Expanded: the hovered/clicked stage, or (with no selection) the
+   scroll-current stage. Always open below lg, without motion, or no JS.
+   ------------------------------------------------------------------ */
+.wf-desc {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.6s var(--ease-out-expo), opacity 0.5s ease;
+}
+.wf-desc > div { overflow: hidden; }
+[data-wf]:not([data-selected]) .wf-step[data-current="true"] .wf-desc,
+.wf-step[data-open="true"] .wf-desc,
+[data-wf]:not([data-tl-armed]) .wf-desc {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+[data-wf]:not([data-selected]) .wf-step[data-current="true"] .wf-title,
+.wf-step[data-open="true"] .wf-title { color: var(--color-lime); }
+.wf-step[data-open="true"] .tl-dot { border-color: var(--color-lime); }
+@media (max-width: 1023px) {
+  .wf-desc { grid-template-rows: 1fr; opacity: 1; }
+}
+
+/* Pathways: connection points light in sequence (ApproachMotion) */
+.pw-node .pw-core { transform-box: fill-box; transform-origin: center; transition: scale 0.5s var(--ease-out-expo); }
+.pw-node[data-on="true"] .pw-core { scale: 1.8; }
+.pw-step[data-on="true"] .pw-lime { background: var(--color-lime); border-color: var(--color-lime); box-shadow: 0 0 14px rgb(183 240 0 / 0.6); }
+.pw-step[data-on="true"] .pw-cyan { background: var(--color-cyan); border-color: var(--color-cyan); box-shadow: 0 0 14px rgb(41 184 212 / 0.6); }
+
+@keyframes fn-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Final CTA swoosh echoes + footer monogram glint */
+@keyframes echo-drift {
+  to { translate: 6px -5px; }
+}
+@keyframes swoosh-glint {
+  0%, 70%, 100% { filter: brightness(1); }
+  82% { filter: brightness(1.6) drop-shadow(0 0 3px rgb(183 240 0 / 0.8)); }
+}
+
+/* Lenis */
+html {
+  /* Keeps hash targets (e.g. /technologies#ai) clear of the fixed 72px nav. */
+  scroll-padding-top: 88px;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Dashed connector lines that flow along their path */
+@keyframes dashflow {
+  to { stroke-dashoffset: -24; }
+}
+.flow-line {
+  stroke-dasharray: 3 9;
+  animation: dashflow 2.4s linear infinite;
+}
+
+/* Gentle pulse for visual nodes */
+@keyframes nodepulse {
+  0% { transform: scale(1); opacity: 0.55; }
+  70%, 100% { transform: scale(3.2); opacity: 0; }
+}
+.node-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodepulse 3.2s var(--ease-out-expo) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
